@@ -1,0 +1,26 @@
+#!/bin/sh
+
+JAILSDIR=/usr/local/jails
+BCONF=$(pwd)/src.conf.buildworld
+ICONF=$(pwd)/src.conf.installworld
+
+die() {
+  echo "$1" >&2
+  exit 1
+}
+
+JAILNAME=$1
+ws=$(printf ' \r\n\t')
+case $JAILNAME in
+  ''|*[$ws]*)
+    die "invalid jail name"
+    ;;
+esac
+
+D=${JAILSDIR}/${JAILNAME}
+cd /usr/src
+mkdir -p $D
+make buildworld -j2 DESTDIR=$D SRCCONF=$BCONF
+make installworld -j2 DESTDIR=$D SRCCONF=$ICONF
+make distribution -j2 DESTDIR=$D SRCCONF=$ICONF
+
